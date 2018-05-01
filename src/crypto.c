@@ -13,6 +13,8 @@ char ascii_of_byte(unsigned char b) {
 char *sign_body(char *body, size_t body_len, char *secret, size_t secret_len,
                 unsigned int *res_len) {
 
+    // Don't really need to use EVP_MAX_MD_SIZE, because SHA1 HMAC is always
+    // 20 bytes, but you never know...
     unsigned char *result = calloc(EVP_MAX_MD_SIZE, sizeof(unsigned char));
 
     HMAC(EVP_sha1(), secret, secret_len, (unsigned char *)body, body_len,

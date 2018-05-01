@@ -9,4 +9,5 @@ bin_PROGRAMS = mirror
 mirror_SOURCES = main.c \
 	mirror.h mirror.c \
 	server.h server.c \
-	crypto.h crypto.c
+	crypto.h crypto.c \
+	gitmgr.h gitmgr.c
