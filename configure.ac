@@ -24,20 +24,26 @@ AC_CHECK_PROG(DOT, dot, dot)
 if test -z "$DOT";
 then AC_MSG_WARN([dot not found - continuing without dot support])
 fi
+
 # Checks for libraries.
 PKG_CHECK_MODULES([libgit2], [libgit2])
 PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd])
+PKG_CHECK_MODULES([openssl], [openssl])
 
 # Checks for header files.
+AC_CHECK_HEADERS([string.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
 
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 AM_CONDITIONAL([HAVE_PDFLATEX], [test -n "$PDFLATEX"])
 AM_CONDITIONAL([HAVE_DOT], [test -n "$DOT"])
-AM_COND_IF([HAVE_PDFLATEX], [AC_SUBST(GEN_HTML, NO) AC_SUBST(GEN_LATEX, YES)], [AC_SUBST(GEN_HTML, YES) AC_SUBST(GEN_LATEX, NO)])
+AM_COND_IF([HAVE_PDFLATEX],
+  [AC_SUBST(GEN_HTML, NO) AC_SUBST(GEN_LATEX, YES)],
+  [AC_SUBST(GEN_HTML, YES) AC_SUBST(GEN_LATEX, NO)])
 
 AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/doxyconfig])])
 
