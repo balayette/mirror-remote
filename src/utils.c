@@ -22,18 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "utils.h"
-#include <string.h>
+#include "url_parser.h"
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <regex.h>
-#include "url_parser.h"
+#include <string.h>
 
-void match_uri(char *uri, char **scheme, char **authority, char **path) {
-    (void)scheme;
-    (void)authority;
-    (void)path;
-    struct url_parser *u = malloc(sizeof(struct url_parser));
-    url_parser_init(u);
-    url_parser_parse_url(uri, strlen(uri), 0, u);
-    printf("%s\n", url_parser_get_field(u, UF_HOST, uri));
+void match_uri(char *uri, char **scheme, char **host, char **path) {
+    struct url_parser u;
+    url_parser_init(&u);
+    url_parser_parse_url(uri, strlen(uri), 0, &u);
+    *scheme = url_parser_get_field(&u, UF_SCHEMA, uri);
+    *host = url_parser_get_field(&u, UF_HOST, uri);
+    *path = url_parser_get_field(&u, UF_PATH, uri);
 }

@@ -688,7 +688,8 @@ int url_parser_parse_url(const char *buf, size_t buflen, int is_connect,
 
 /**
  * \brief Returns a newly allocated char array that holds the value of the field
- * To retrieve the port, do u->port
+ *
+ * To retrieve the port as an int, you can access u.port
  */
 char *url_parser_get_field(struct url_parser *u, int field, char *uri) {
     if (!(u->field_set & (1 << field)))
