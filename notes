@@ -1,0 +1,35 @@
+The server receives webhooks from github.
+The server has to pull the repo if the local version is odler than the remote
+version.
+
+Filesystem :
+
+host
+|--->username
+     |--->repos
+|--->username2
+     |--->repos
+
+The host part is irrelevant for now because only github is supported.
+
+Flowchart :
+
+Read the config file, open repos / clone
+
+config file format :
+
+store=path
+repo=...
+repo=...
+repo=...
+end
+
+end is not mandatory, but acts as a delimiter. Everything after it isn't read
+Comments with #
+
+
+Receive a webhook for repo username/repo.
+if host/username doesn't exist, create it
+if host/username/repo doesn't exist, clone in host/username
+if host/username/repo is >= than the webhook, do nothing
+else pull

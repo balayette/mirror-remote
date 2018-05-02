@@ -1,0 +1,8 @@
+#ifndef ERR_CODES_H
+#define ERR_CODES_H
+
+#define CONFIG_FILE_NOT_FOUND 1
+#define CONFIG_FILE_MALFORMED 2
+#define STORE_CREATION_FAILED 3
+
+#endif

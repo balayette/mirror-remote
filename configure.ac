@@ -31,12 +31,20 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd])
 PKG_CHECK_MODULES([openssl], [openssl])
 
 # Checks for header files.
-AC_CHECK_HEADERS([string.h sys/socket.h])
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_TYPE_INT16_T
+AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([memset mkdir])
 
 AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 AM_CONDITIONAL([HAVE_PDFLATEX], [test -n "$PDFLATEX"])
