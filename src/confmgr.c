@@ -22,6 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/**
+ * \file confmgr.c
+ * \brief Implementation of confmgr.h
+ */
+
 #include "confmgr.h"
 #include <errno.h>
 #include <git2.h>
@@ -35,6 +40,12 @@ SOFTWARE.
 #include <sys/stat.h>
 #include <dirent.h>
 
+/**
+ * \brief Read a file from a file and write it to line.
+ *
+ * Resize line and writes the new size to len if the buffer isn't big enough.
+ * Behaves a bit like GNU's getline.
+ */
 int getline(char **line, size_t *len, FILE *f) {
     char curr;
     size_t i = 0;
@@ -61,6 +72,9 @@ int getline(char **line, size_t *len, FILE *f) {
     return i;
 }
 
+/**
+ * \brief Read the config at path
+ */
 struct confmgr *read_config(char *path) {
     FILE *f = fopen(path, "r");
     if (!f)
@@ -135,6 +149,9 @@ struct confmgr *read_config(char *path) {
     return c;
 }
 
+/**
+ * \brief Free the memory used by a confmgr struct
+ */
 void free_confmgr(struct confmgr *c){
         free(c->store);
         for(size_t i = 0; i < c->repo_count; i++){
@@ -144,6 +161,9 @@ void free_confmgr(struct confmgr *c){
         free(c);
 }
 
+/**
+ * \brief Apply the config to the filesystem
+ */
 void apply_conf(struct confmgr *c){
         DIR *d = opendir(c->store);
         if(!d){

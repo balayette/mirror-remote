@@ -1,8 +1,3 @@
-/**
- * \file url_parser.h
- * \brief A URL parser based on Joylent's http parser
- */
-
 /* Copyright Joyent, Inc. and other Node contributors. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,6 +17,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
+ */
+/**
+ * \file url_parser.h
+ * \brief A simple url parser based on Joyent's http-parser
  */
 #ifndef URL_PARSER_H
 #define URL_PARSER_H
@@ -71,21 +70,9 @@ struct url_parser {
   } field_data[UF_MAX];
 };
 
-
-/**
- * \brief Returns a newly allocated char array that holds the value of the field
- * To retrieve the port, do u->port
- */
 char *url_parser_get_field(struct url_parser *u, int field, char *uri);
-
-/**
- * \brief Initialize all http_parser_url members to 0
- */
 void url_parser_init(struct url_parser *u);
 
-/**
- * \brief Parse a URL; return nonzero on failure
- */
 int url_parser_parse_url(const char *buf, size_t buflen,
                           int is_connect,
                           struct url_parser *u);

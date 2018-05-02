@@ -22,11 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/**
+ * \file confmgr.h
+ * \brief Manages the configuration file
+ */
+
+
 #include <stdlib.h>
 
 #ifndef CONFMGR_H
 #define CONFMGR_H
 
+/**
+ * \brief Holds configuration information
+ */
 struct confmgr {
         char *store;
         char **repo_urls;
