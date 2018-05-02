@@ -4,8 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([mirror-remote], [0.1], [nmanichon@gmail.com])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([src/mirror.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/main.c])
 
 # Checks for programs.
 AC_PROG_CC

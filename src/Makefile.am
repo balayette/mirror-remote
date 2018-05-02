@@ -7,7 +7,6 @@ AM_LDFLAGS = @libgit2_LIBS@ @libmicrohttpd_LIBS@ @openssl_LIBS@
 
 bin_PROGRAMS = mirror
 mirror_SOURCES = main.c \
-	mirror.h mirror.c \
 	server.h server.c \
 	crypto.h crypto.c \
 	gitmgr.h gitmgr.c \
