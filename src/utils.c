@@ -1,16 +1,39 @@
+/*
+MIT License
+
+Copyright (c) 2018 Nicolas Manichon
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "utils.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <regex.h>
-#include "joylent/http_parser.h"
+#include "url_parser.h"
 
 void match_uri(char *uri, char **scheme, char **authority, char **path) {
     (void)scheme;
     (void)authority;
     (void)path;
-    struct http_parser_url *u = malloc(sizeof(struct http_parser_url));
-    http_parser_url_init(u);
-    http_parser_parse_url(uri, strlen(uri), 0, u);
-    printf("%s\n",http_parser_url_schema(u, uri));
+    struct url_parser *u = malloc(sizeof(struct url_parser));
+    url_parser_init(u);
+    url_parser_parse_url(uri, strlen(uri), 0, u);
+    printf("%s\n", url_parser_get_field(u, UF_HOST, uri));
 }

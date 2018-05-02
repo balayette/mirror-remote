@@ -14,4 +14,4 @@ mirror_SOURCES = main.c \
 	logging.h logging.c \
 	confmgr.h confmgr.c \
 	utils.h utils.c \
-	joylent/http_parser.h joylent/http_parser.c
+	url_parser.h url_parser.c

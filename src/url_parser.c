@@ -1,4 +1,25 @@
-#include "http_parser.h"
+/* Copyright Joyent, Inc. and other Node contributors.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+#include "url_parser.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -307,7 +328,7 @@ static enum http_host_state http_parse_host_char(enum http_host_state s,
     }
     return s_http_host_dead;
 }
-static int http_parse_host(const char *buf, struct http_parser_url *u,
+static int http_parse_host(const char *buf, struct url_parser *u,
                            int found_at) {
     enum http_host_state s;
 
@@ -535,15 +556,15 @@ static enum state parse_url_char(enum state s, const char ch) {
     return s_dead;
 }
 
-void http_parser_url_init(struct http_parser_url *u) {
+void url_parser_init(struct url_parser *u) {
     memset(u, 0, sizeof(*u));
 }
 
-int http_parser_parse_url(const char *buf, size_t buflen, int is_connect,
-                          struct http_parser_url *u) {
+int url_parser_parse_url(const char *buf, size_t buflen, int is_connect,
+                          struct url_parser *u) {
     enum state s;
     const char *p;
-    enum http_parser_url_fields uf, old_uf;
+    enum url_parser_fields uf, old_uf;
     int found_at = 0;
 
     u->port = u->field_set = 0;
@@ -657,18 +678,11 @@ int http_parser_parse_url(const char *buf, size_t buflen, int is_connect,
     return 0;
 }
 
-char *http_parser_url_schema(struct http_parser_url *u, char *uri){
-        if(!(u->field_set & (1 << UF_SCHEMA)))
+char *url_parser_get_field(struct url_parser *u, int field, char *uri){
+        if(!(u->field_set & (1 << field)))
                 return NULL;
-        char *ret = malloc(sizeof(char) * (u->field_data[UF_SCHEMA].len + 1));
-        memcpy(ret, uri + u->field_data[UF_SCHEMA].off, u->field_data[UF_SCHEMA].len);
-        ret[u->field_data[UF_SCHEMA].len] = 0x0;
+        char *ret = malloc(sizeof(char) * (u->field_data[field].len + 1));
+        memcpy(ret, uri + u->field_data[field].off, u->field_data[field].len);
+        ret[u->field_data[field].len] = 0x0;
         return ret;
 }
-
-/* char *http_parser_url_host(struct http_parser_url *u); */
-/* uint16_t http_parser_url_port(struct http_parser_url *u); */
-/* char *http_parser_url_path(struct http_parser_url *u); */
-/* char *http_parser_url_query(struct http_parser_url *u); */
-/* char *http_parser_url_fragment(struct http_parser_url *u); */
-/* char *http_parser_url_userinfo(struct http_parser_url *u); */

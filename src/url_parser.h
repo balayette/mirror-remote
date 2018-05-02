@@ -1,3 +1,8 @@
+/**
+ * \file url_parser.h
+ * \brief A URL parser based on Joylent's http parser
+ */
+
 /* Copyright Joyent, Inc. and other Node contributors. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,8 +23,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#ifndef HTTP_PARSER_H
-#define HTTP_PARSER_H
+#ifndef URL_PARSER_H
+#define URL_PARSER_H
 
 #include <stddef.h>
 
@@ -33,7 +38,10 @@ typedef unsigned __int16 uint16_t;
 #include <stdint.h>
 #endif
 
-enum http_parser_url_fields
+/**
+ * \brief Field of a URL
+ */
+enum url_parser_fields
   { UF_SCHEMA           = 0
   , UF_HOST             = 1
   , UF_PORT             = 2
@@ -45,14 +53,15 @@ enum http_parser_url_fields
   };
 
 
-/* Result structure for http_parser_parse_url().
+/**
+ * \brief Result structure for http_parser_parse_url().
  *
  * Callers should index into field_data[] with UF_* values iff field_set
  * has the relevant (1 << UF_*) bit set. As a courtesy to clients (and
  * because we probably have padding left over), we convert any port to
  * a uint16_t.
  */
-struct http_parser_url {
+struct url_parser {
   uint16_t field_set;           /* Bitmask of (1 << UF_*) values */
   uint16_t port;                /* Converted UF_PORT string */
 
@@ -62,21 +71,22 @@ struct http_parser_url {
   } field_data[UF_MAX];
 };
 
-char *http_parser_url_schema(struct http_parser_url *u, char *uri);
-char *http_parser_url_host(struct http_parser_url *u, char *uri);
-uint16_t http_parser_url_port(struct http_parser_url *u);
-char *http_parser_url_path(struct http_parser_url *u, char *uri);
-char *http_parser_url_query(struct http_parser_url *u, char *uri);
-char *http_parser_url_fragment(struct http_parser_url *u, char *uri);
-char *http_parser_url_userinfo(struct http_parser_url *u, char *uri);
 
+/**
+ * \brief Returns a newly allocated char array that holds the value of the field
+ * To retrieve the port, do u->port
+ */
+char *url_parser_get_field(struct url_parser *u, int field, char *uri);
 
-/* Initialize all http_parser_url members to 0 */
-void http_parser_url_init(struct http_parser_url *u);
+/**
+ * \brief Initialize all http_parser_url members to 0
+ */
+void url_parser_init(struct url_parser *u);
 
-/* Parse a URL; return nonzero on failure */
-int http_parser_parse_url(const char *buf, size_t buflen,
+/**
+ * \brief Parse a URL; return nonzero on failure
+ */
+int url_parser_parse_url(const char *buf, size_t buflen,
                           int is_connect,
-                          struct http_parser_url *u);
-
+                          struct url_parser *u);
 #endif
