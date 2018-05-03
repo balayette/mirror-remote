@@ -21,11 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <git2.h>
-#include "confmgr.h"
-
+/**
+ * \file gitmgr.h
+ * \brief Git-related helper functions
+ */
 #ifndef GITMGR_H
 #define GITMGR_H
+
+#include <git2.h>
+#include "confmgr.h"
 
 int init_repo(char *path, git_repository **repo);
 int clone_repo(char *url, char *path, git_repository **repo);

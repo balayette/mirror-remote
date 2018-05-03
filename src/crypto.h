@@ -21,10 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <stdlib.h>
+/**
+ * \file crypto.h
+ * \brief Crypto-related helper functions
+ */
 
 #ifndef CRYPTO_H
 #define CRYPTO_H
+
+#include <stdlib.h>
 
 char *sign_body(char *body, size_t body_len, char *secret,
                          size_t secret_len, unsigned int *res_len);

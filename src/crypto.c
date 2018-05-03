@@ -21,11 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+/**
+ * \file crypto.c
+ * \brief Implementation of crypto.h
+ */
 #include "crypto.h"
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 
 char ascii_of_byte(unsigned char b) {
     if (b < 10)
@@ -33,6 +38,10 @@ char ascii_of_byte(unsigned char b) {
     return 'a' + (b - 10);
 }
 
+/**
+ * \brief SHA1-HMAC text body of length body_len using key secret of length secret_len.
+ * Places the length of the hash in res_len
+ */
 char *sign_body(char *body, size_t body_len, char *secret, size_t secret_len,
                 unsigned int *res_len) {
 

@@ -21,13 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
+/**
+ * \file server.h
+ * \brief The server that listens to webhooks
+ */
+#ifndef SERVER_H
+#define SERVER_H
+
 #include <microhttpd.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-
-#ifndef SERVER_H
-#define SERVER_H
 
 int respond_conn(void *cls, struct MHD_Connection *connection, const char *url,
                  const char *method, const char *version,

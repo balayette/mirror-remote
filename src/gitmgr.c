@@ -21,6 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+/**
+ * \file gitmgr.c
+ * \brief Implementation of gitmgr.h
+ */
 #include "gitmgr.h"
 #include <string.h>
 #include "confmgr.h"
@@ -34,10 +38,16 @@ int check_err(int r){
         return r;
 }
 
+/**
+ * \brief Initialize a repo at path
+ */
 int init_repo(char *path, git_repository **repo){
         return git_repository_init(repo, path, false);
 }
 
+/**
+ * \brief Clone a repo from url to path
+ */
 int clone_repo(char *url, char *path, git_repository **repo){
         log_msg("Cloning %s to %s\n", url, path);
         git_clone_options opts;
@@ -46,6 +56,9 @@ int clone_repo(char *url, char *path, git_repository **repo){
         return check_err(git_clone(repo, url, path, &opts));
 }
 
+/**
+ * \brief Clone all repos in a confmgr
+ */
 void clone_all(struct confmgr *c){
         git_repository *r = NULL;
         char *path = calloc(strlen(c->store) + 1, sizeof(char));
