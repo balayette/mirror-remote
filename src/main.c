@@ -10,11 +10,10 @@ int main(int argc, char *argv[]) {
         printf("Usage : ./mirror configfile");
         return 1;
     }
-    (void)argv;
     init_logging();
     git_libgit2_init();
 
-    struct confmgr *a = read_config("config");
+    struct confmgr *a = read_config(argv[1]);
     apply_conf(a);
     free_confmgr(a);
 
