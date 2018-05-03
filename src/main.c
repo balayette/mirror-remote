@@ -12,10 +12,9 @@ int main(int argc, char *argv[]) {
     (void)argv;
     git_libgit2_init();
 
-    match_uri("http://github.com/d1adev/blockchan", NULL, NULL, NULL);
-    /* struct confmgr *a = read_config("config"); */
-    /* apply_conf(a); */
-    /* free_confmgr(a); */
+    struct confmgr *a = read_config("config");
+    apply_conf(a);
+    free_confmgr(a);
 
     git_libgit2_shutdown();
 

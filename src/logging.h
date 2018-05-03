@@ -28,6 +28,17 @@ SOFTWARE.
 #ifndef LOGGING_H
 #define LOGGING_H
 
-void log_msg(char *format, ...);
+#include <stdio.h>
+#include <time.h>
+
+/**
+ * Simply a wrapper around log_msg_private that adds file and line info
+ */
+#define log_msg(...) log_msg_private(__FILE__, __LINE__, __VA_ARGS__);
+
+/**
+ * Logs a message to stdout with file, line and datetime info
+ */
+void log_msg_private(char *file, int line, char *format, ...);
 
 #endif

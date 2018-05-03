@@ -28,6 +28,9 @@ SOFTWARE.
 #ifndef UTILS_H
 #define UTILS_H
 
-void match_uri(char *uri, char **scheme, char **authority, char **path);
+#include <stdbool.h>
+
+int match_uri(char *uri, char **scheme, char **host, char **path);
+bool dir_exists(char *path);
 
 #endif
