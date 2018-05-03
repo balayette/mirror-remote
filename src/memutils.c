@@ -56,7 +56,7 @@ void *_xcalloc(size_t nmemb, size_t size, char *file, int line){
 }
 
 /**
- * \brief Wrapper around calloc, exits if the allocation fails
+ * \brief Wrapper around realloc, exits if the allocation fails
  */
 void *_xrealloc(void *ptr, size_t size, char *file, int line){
         void *ptr2 = realloc(ptr, size);
