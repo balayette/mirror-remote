@@ -31,13 +31,15 @@ SOFTWARE.
 #include <stdio.h>
 #include <time.h>
 
+void init_logging(void);
+
 /**
- * Simply a wrapper around log_msg_private that adds file and line info
+ * \brief Simply a wrapper around log_msg_private that adds file and line info
  */
 #define log_msg(...) log_msg_private(__FILE__, __LINE__, __VA_ARGS__);
 
 /**
- * Logs a message to stdout with file, line and datetime info
+ * \brief Logs a message to stdout with file, line and datetime info
  */
 void log_msg_private(char *file, int line, char *format, ...);
 

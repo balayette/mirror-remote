@@ -3,6 +3,7 @@
 #include <microhttpd.h>
 #include <stdio.h>
 #include "utils.h"
+#include "logging.h"
 
 int main(int argc, char *argv[]) {
     if (argc == 0) {
@@ -10,6 +11,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     (void)argv;
+    init_logging();
     git_libgit2_init();
 
     struct confmgr *a = read_config("config");
