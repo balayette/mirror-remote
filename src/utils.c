@@ -21,18 +21,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
+/**
+ * \file utils.c
+ * \brief Implementation of utils.h
+ */
+
 #include "utils.h"
 #include "url_parser.h"
-#include <regex.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-void match_uri(char *uri, char **scheme, char **host, char **path) {
+#include <string.h>
+#include <stdlib.h>
+
+#include <stdbool.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <sys/types.h>
+
+/**
+ * \brief Check that a url is valid, and write its components to the parameters
+ * \return 0 if the URL is valid
+ */
+int match_uri(char *uri, char **scheme, char **host, char **path) {
     struct url_parser u;
     url_parser_init(&u);
-    url_parser_parse_url(uri, strlen(uri), 0, &u);
-    *scheme = url_parser_get_field(&u, UF_SCHEMA, uri);
-    *host = url_parser_get_field(&u, UF_HOST, uri);
-    *path = url_parser_get_field(&u, UF_PATH, uri);
+    int r;
+    if((r = url_parser_parse_url(uri, strlen(uri), 0, &u)) == 0){
+        *scheme = url_parser_get_field(&u, UF_SCHEMA, uri);
+        *host = url_parser_get_field(&u, UF_HOST, uri);
+        *path = url_parser_get_field(&u, UF_PATH, uri);
+    }
+    return r;
+}
+
+bool dir_exists(char *path){
+        DIR *d = opendir(path);
+        bool flag = false;
+        if(d){
+                flag = true;
+                closedir(d);
+        }
+        return flag;
 }

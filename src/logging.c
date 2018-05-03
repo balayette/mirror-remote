@@ -26,7 +26,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <time.h>
 
-void log_msg(char *format, ...) {
+void log_msg_private(char *file, int line, char *format, ...) {
     va_list params;
     va_start(params, format);
     time_t t;
@@ -35,8 +35,8 @@ void log_msg(char *format, ...) {
 
     bt = localtime(&t);
 
-    printf("%d/%d/%d %d:%d:%d |> ", bt->tm_year + 1900, bt->tm_mon + 1,
-           bt->tm_mday, bt->tm_hour, bt->tm_min, bt->tm_sec);
+    printf("%s:%d | %d/%d/%d %d:%d:%d |> ", file, line, bt->tm_year + 1900,
+           bt->tm_mon + 1, bt->tm_mday, bt->tm_hour, bt->tm_min, bt->tm_sec);
     vprintf(format, params);
     va_end(params);
 }

@@ -39,6 +39,7 @@ SOFTWARE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include "utils.h"
 
 /**
  * \brief Read a file from a file and write it to line.
@@ -165,18 +166,15 @@ void free_confmgr(struct confmgr *c){
  * \brief Apply the config to the filesystem
  */
 void apply_conf(struct confmgr *c){
-        DIR *d = opendir(c->store);
-        if(!d){
-                log_msg("The store %s doesn't exist yet!\n", c->store);
-
+        if(!dir_exists(c->store)) {
+                log_msg("The store %s doesn't exist\n", c->store);
                 int err;
                 if((err = mkdir(c->store, 0777)) == -1){
                         log_msg("Couldn't create the store! Error %d\n", errno);
                         exit(STORE_CREATION_FAILED);
                 }
-                log_msg("Cloning all repos, this may take a while\n");
-                clone_all(c);
-                return;
+                log_msg("Created the store\n");
         }
-        closedir(d);
+        log_msg("Cloning all missing repos.\n");
+        clone_all(c);
 }

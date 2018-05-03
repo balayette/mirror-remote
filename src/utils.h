@@ -21,9 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+/**
+ * \file utils.h
+ * \brief Various utility functions
+ */
 #ifndef UTILS_H
 #define UTILS_H
 
-void match_uri(char *uri, char **scheme, char **host, char **path);
+#include <stdbool.h>
+
+int match_uri(char *uri, char **scheme, char **host, char **path);
+bool dir_exists(char *path);
 
 #endif
