@@ -41,10 +41,16 @@ int check_err(int r) {
     return r;
 }
 
+/**
+ * \brief Initialize a repo at path
+ */
 int init_repo(char *path, git_repository **repo) {
     return git_repository_init(repo, path, false);
 }
 
+/**
+ * \brief Clone a repo from url to path
+ */
 int clone_repo(char *url, char *path, git_repository **repo) {
     git_clone_options opts;
     git_clone_init_options(&opts, GIT_CLONE_OPTIONS_VERSION);

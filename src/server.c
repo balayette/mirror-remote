@@ -21,10 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+/**
+ * \file server.c
+ * \brief Implementation of server.h
+ */
 #include "server.h"
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * \brief Callback for microhttpd
+ */
 int respond_conn(void *cls, struct MHD_Connection *connection, const char *url,
                  const char *method, const char *version,
                  const char *upload_data, size_t *upload_data_size,

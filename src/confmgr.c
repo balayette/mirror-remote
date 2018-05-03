@@ -42,7 +42,7 @@ SOFTWARE.
 #include "utils.h"
 
 /**
- * \brief Read a file from a file and write it to line.
+ * \brief Read a line from a file and write it to line.
  *
  * Resize line and writes the new size to len if the buffer isn't big enough.
  * Behaves a bit like GNU's getline.
