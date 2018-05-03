@@ -135,8 +135,8 @@ void clone_all(struct confmgr *c) {
         } else {
 #ifdef HAVE_PTHREAD
 
-            clone_all_pthread(c, i, threads, thread_params, th_id++,
-                              dirs_paths, pipefd);
+            clone_all_pthread(c, i, threads, thread_params, th_id++, dirs_paths,
+                              pipefd);
 
 #else
 
@@ -158,10 +158,10 @@ void clone_all(struct confmgr *c) {
 #ifdef HAVE_PTHREAD
 
     for (int i = 0; i < th_id; i++) {
-            int idx;
-            read(pipefd[0], &idx, sizeof(int));
-            pthread_join(threads[idx], NULL);
-            free(thread_params[idx]);
+        int idx;
+        read(pipefd[0], &idx, sizeof(int));
+        pthread_join(threads[idx], NULL);
+        free(thread_params[idx]);
     }
     free(threads);
     free(thread_params);

@@ -19,3 +19,7 @@ mirror_SOURCES = main.c \
 	utils.h utils.c \
 	url_parser.h url_parser.c \
 	memutils.h memutils.c
+
+if BUILD_PTHREAD
+mirror_SOURCES += thread_pool.h thread_pool.c
+endif
