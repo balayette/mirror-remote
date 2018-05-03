@@ -26,13 +26,39 @@ SOFTWARE.
  * \brief Implementation of gitmgr.h
  */
 #include "gitmgr.h"
+#include "../config.h"
 #include "confmgr.h"
 #include "logging.h"
+#include "memutils.h"
 #include "utils.h"
 #include <git2.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_PTHREAD
+
+#include <pthread.h>
+#include <unistd.h>
+
+#endif
+
+struct gct_p {
+    char *url;
+    char *path;
+    int th_id;
+    int *pipe;
+};
+
+void *git_clone_worker(void *p) {
+    struct gct_p *params = (struct gct_p *)p;
+    struct git_repository *r = NULL;
+    clone_repo(params->url, params->path, &r);
+    git_repository_free(r);
+    write(params->pipe[1], &(params->th_id), sizeof(int));
+    log_msg("Thread %d : Finished cloning %s\n", params->th_id, params->url);
+    return (void *)0;
+}
 
 int check_err(int r) {
     if (r < 0) {
@@ -59,13 +85,35 @@ int clone_repo(char *url, char *path, git_repository **repo) {
 }
 
 /**
+ * \brief The core of clone_all, but uses pthreads
+ */
+void clone_all_pthread(struct confmgr *c, int i, pthread_t *threads,
+                       struct gct_p **thread_params, int thread_count,
+                       char **dirs_paths, int pipefd[2]) {
+    log_msg("Starting a new thread to clone %s\n", c->repo_urls[i]);
+    struct gct_p *params = xmalloc(sizeof(struct gct_p));
+    thread_params[i] = params;
+    params->url = c->repo_urls[i];
+    params->path = dirs_paths[i];
+    params->th_id = thread_count;
+    params->pipe = pipefd;
+    pthread_create(threads + i, NULL, git_clone_worker, (void *)params);
+}
+
+/**
  * \brief Clone all repos stored in a configmgr
  */
 void clone_all(struct confmgr *c) {
-    git_repository *r = NULL;
-    char *dir_path = NULL;
-    (void)r;
-    (void)dir_path;
+#ifdef HAVE_PTHREAD
+
+    pthread_t *threads = xcalloc(c->repo_count, sizeof(pthread_t));
+    struct gct_p **thread_params = xcalloc(c->repo_count, sizeof(pthread_t));
+    int th_id = 0;
+    int pipefd[2];
+    pipe(pipefd);
+
+#endif
+    char **dirs_paths = xcalloc(c->repo_count, sizeof(char *));
     char *method, *domain, *path;
     method = domain = path = NULL;
     for (size_t i = 0; i < c->repo_count; i++) {
@@ -75,25 +123,50 @@ void clone_all(struct confmgr *c) {
         }
         int dir_path_len =
             strlen(c->store) + 1 + strlen(domain) + strlen(path) + 1;
-        dir_path = realloc(dir_path, sizeof(char) * (dir_path_len));
-        memset(dir_path, 0, dir_path_len * sizeof(char));
 
-        sprintf(dir_path, "%s/%s%s", c->store, domain, path);
+        dirs_paths[i] = xrealloc(dirs_paths[i], sizeof(char) * (dir_path_len));
 
-        if (dir_exists(dir_path)) {
-            log_msg("Repository %s already exists, not cloning.\n", dir_path);
-            continue;
+        sprintf(dirs_paths[i], "%s/%s%s", c->store, domain, path);
+
+        if (dir_exists(dirs_paths[i])) {
+            log_msg("Repository %s already exists, not cloning.\n",
+                    dirs_paths[i]);
+            free(dirs_paths[i]);
+        } else {
+#ifdef HAVE_PTHREAD
+
+            clone_all_pthread(c, i, threads, thread_params, th_id++,
+                              dirs_paths, pipefd);
+
+#else
+
+            git_repository *r = NULL;
+            log_msg("Cloning %s to %s. This may take a while...\n",
+                    c->repo_urls[i], dirs_paths[i]);
+
+            clone_repo(c->repo_urls[i], dirs_paths[i], &r);
+            git_repository_free(r);
+            free(dirs_paths[i]);
+
+#endif
         }
-        log_msg("Cloning %s to %s. This may take a while...\n", c->repo_urls[i],
-                dir_path);
-
-        clone_repo(c->repo_urls[i], dir_path, &r);
-
-        git_repository_free(r);
-
-        free(method);
         free(domain);
+        free(method);
         free(path);
     }
-    free(dir_path);
+
+#ifdef HAVE_PTHREAD
+
+    for (int i = 0; i < th_id; i++) {
+            int idx;
+            read(pipefd[0], &idx, sizeof(int));
+            pthread_join(threads[idx], NULL);
+            free(thread_params[idx]);
+    }
+    free(threads);
+    free(thread_params);
+    close(pipefd[0]);
+    close(pipefd[1]);
+#endif
+    free(dirs_paths);
 }

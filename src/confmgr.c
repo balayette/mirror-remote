@@ -28,6 +28,7 @@ SOFTWARE.
  */
 
 #include "confmgr.h"
+#include "memutils.h"
 #include <errno.h>
 #include <git2.h>
 #include "gitmgr.h"
@@ -65,7 +66,7 @@ int getline(char **line, size_t *len, FILE *f) {
         }
         (*line)[i] = curr;
         if (i == *len - 2) {
-            *line = realloc(*line, *len * 2);
+            *line = xrealloc(*line, *len * 2);
             memset(*line + *len, 0, *len);
             *len *= 2;
         }
@@ -83,8 +84,8 @@ struct confmgr *read_config(char *path) {
     char *store = NULL;
     size_t repo_count = 10;
     size_t repo_index = 0;
-    char **repos = calloc(10, sizeof(char *));
-    char *line = calloc(100, sizeof(char));
+    char **repos = xcalloc(10, sizeof(char *));
+    char *line = xcalloc(100, sizeof(char));
     size_t len = 100;
     int read;
 
@@ -106,7 +107,7 @@ struct confmgr *read_config(char *path) {
                 log_msg("Didn't expect %s\n", line);
                 exit(CONFIG_FILE_MALFORMED);
             } else {
-                store = calloc(read - 6 + 1, sizeof(char));
+                store = xcalloc(read - 6 + 1, sizeof(char));
                 if (read == 6) {
                     log_msg("The path needs to be set\n");
                     exit(CONFIG_FILE_MALFORMED);
@@ -119,11 +120,11 @@ struct confmgr *read_config(char *path) {
                 exit(CONFIG_FILE_MALFORMED);
             }
             if (repo_index == repo_count) {
-                repos = realloc(repos, repo_count * 2 * sizeof(char *));
+                repos = xrealloc(repos, repo_count * 2 * sizeof(char *));
                 memset(repos + repo_count, 0, repo_count * sizeof(char *));
                 repo_count *= 2;
             }
-            repos[repo_index] = calloc(read - 5 + 1, sizeof(char));
+            repos[repo_index] = xcalloc(read - 5 + 1, sizeof(char));
             strcpy(repos[repo_index], line + 5);
             repo_index++;
         }
@@ -138,7 +139,7 @@ struct confmgr *read_config(char *path) {
             log_msg("You haven't set any repos...\n");
     }
 
-    struct confmgr *c = malloc(sizeof(struct confmgr));
+    struct confmgr *c = xmalloc(sizeof(struct confmgr));
     c->store = store;
     c->repo_urls = repos;
     c->repo_count = repo_index;
@@ -177,4 +178,5 @@ void apply_conf(struct confmgr *c){
         }
         log_msg("Cloning all missing repos.\n");
         clone_all(c);
+        log_msg("Applied the config\n");
 }

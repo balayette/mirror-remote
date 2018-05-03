@@ -21,16 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-/**
- * \file err_codes.h
- * \brief Exit codes of the program
- */
-#ifndef ERR_CODES_H
-#define ERR_CODES_H
 
-#define CONFIG_FILE_NOT_FOUND 1
-#define CONFIG_FILE_MALFORMED 2
-#define STORE_CREATION_FAILED 3
-#define MEM_ALLOC_FAILED 4
+/**
+ * \file memutils.h
+ * \brief Wrappers around memory allocators
+ */
+
+#ifndef MEMUTILS_H
+#define MEMUTILS_H
+
+#include <stdlib.h>
+
+#define xmalloc(size) _xmalloc(size, __FILE__, __LINE__);
+#define xcalloc(nmemb, size) _xcalloc(nmemb, size, __FILE__, __LINE__);
+#define xrealloc(ptr, size) _xrealloc(ptr, size, __FILE__, __LINE__);
+
+void *_xmalloc(size_t size, char *file, int line);
+void *_xcalloc(size_t nmemb, size_t size, char *file, int line);
+void *_xrealloc(void *ptr, size_t size, char *file, int line);
 
 #endif

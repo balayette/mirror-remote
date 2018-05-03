@@ -26,6 +26,7 @@ SOFTWARE.
  * \brief Implementation of crypto.h
  */
 #include "crypto.h"
+#include "memutils.h"
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <stdio.h>
@@ -47,13 +48,13 @@ char *sign_body(char *body, size_t body_len, char *secret, size_t secret_len,
 
     // Don't really need to use EVP_MAX_MD_SIZE, because SHA1 HMAC is always
     // 20 bytes, but you never know...
-    unsigned char *result = calloc(EVP_MAX_MD_SIZE, sizeof(unsigned char));
+    unsigned char *result = xcalloc(EVP_MAX_MD_SIZE, sizeof(unsigned char));
 
     HMAC(EVP_sha1(), secret, secret_len, (unsigned char *)body, body_len,
          result, res_len);
 
     // 2 chars / byte, + 1 NULL byte
-    char *hexa = calloc(*res_len * 2 + 1, sizeof(char));
+    char *hexa = xcalloc(*res_len * 2 + 1, sizeof(char));
     int pos = 0;
     for (unsigned int i = 0; i < *res_len * 2; pos++) {
         unsigned char curr = result[pos];

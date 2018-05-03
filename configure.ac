@@ -5,6 +5,8 @@ AC_PREREQ([2.69])
 AC_INIT([mirror-remote], [0.1], [nmanichon@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/main.c])
+AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CC
@@ -34,6 +36,7 @@ AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
+AX_PTHREAD
 AC_TYPE_INT16_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
