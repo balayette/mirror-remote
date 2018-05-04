@@ -1,0 +1,1 @@
+flags = -Wall -Wextra -pedantic -std=c11 -Werror -g

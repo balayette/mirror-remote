@@ -1,17 +1,17 @@
 #include "confmgr.h"
+#include "logging.h"
+#include "thread_pool.h"
+#include "utils.h"
 #include <git2.h>
 #include <microhttpd.h>
 #include <stdio.h>
-#include "utils.h"
-#include "logging.h"
-#include "thread_pool.h"
 #include <unistd.h>
 
 struct p {
     int id;
 };
 
-void *worker(void *p){
+void *worker(void *p) {
     struct p *pa = (struct p *)p;
     sleep(5);
     log_msg("Thread %d\n", pa->id);
@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
     (void)argv;
     init_logging();
 
-    struct thread_pool *pool = create_thread_pool(20);
+    struct thread_pool *pool = create_thread_pool(4);
 
-    for(int i = 0; i < 10; i++){
+    for (int i = 0; i < 10; i++) {
         struct p *pa = malloc(sizeof(struct p));
         pa->id = i;
         log_msg("Waiting to create thread %d\n", i);

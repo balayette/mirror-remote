@@ -27,9 +27,9 @@ SOFTWARE.
  * \brief Implementation of thread_pool.h
  */
 
-#include "thread_pool.h"
 #include "logging.h"
 #include "memutils.h"
+#include "thread_pool.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -110,6 +110,6 @@ void join_all(struct thread_pool *pool) {
         pthread_join(pool->user_threads[next_index], NULL);
     }
     log_msg("All threads have joined\n");
-    for(size_t i = 0; i < pool->th_nbr; i++)
-            write(pool->fd[1], &i, sizeof(size_t));
+    for (size_t i = 0; i < pool->th_nbr; i++)
+        write(pool->fd[1], &i, sizeof(size_t));
 }
