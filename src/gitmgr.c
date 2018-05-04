@@ -25,11 +25,12 @@ SOFTWARE.
  * \file gitmgr.c
  * \brief Implementation of gitmgr.h
  */
-#include "gitmgr.h"
 #include "../config.h"
 #include "confmgr.h"
+#include "gitmgr.h"
 #include "logging.h"
 #include "memutils.h"
+#include "thread_pool.h"
 #include "utils.h"
 #include <git2.h>
 #include <stdbool.h>
@@ -46,19 +47,7 @@ SOFTWARE.
 struct gct_p {
     char *url;
     char *path;
-    int th_id;
-    int *pipe;
 };
-
-void *git_clone_worker(void *p) {
-    struct gct_p *params = (struct gct_p *)p;
-    struct git_repository *r = NULL;
-    clone_repo(params->url, params->path, &r);
-    git_repository_free(r);
-    write(params->pipe[1], &(params->th_id), sizeof(int));
-    log_msg("Thread %d : Finished cloning %s\n", params->th_id, params->url);
-    return (void *)0;
-}
 
 int check_err(int r) {
     if (r < 0) {
@@ -84,35 +73,56 @@ int clone_repo(char *url, char *path, git_repository **repo) {
     return check_err(git_clone(repo, url, path, &opts));
 }
 
-/**
- * \brief The core of clone_all, but uses pthreads
- */
-void clone_all_pthread(struct confmgr *c, int i, pthread_t *threads,
-                       struct gct_p **thread_params, int thread_count,
-                       char **dirs_paths, int pipefd[2]) {
-    log_msg("Starting a new thread to clone %s\n", c->repo_urls[i]);
-    struct gct_p *params = xmalloc(sizeof(struct gct_p));
-    thread_params[i] = params;
-    params->url = c->repo_urls[i];
-    params->path = dirs_paths[i];
-    params->th_id = thread_count;
-    params->pipe = pipefd;
-    pthread_create(threads + i, NULL, git_clone_worker, (void *)params);
+#ifdef HAVE_PTHREAD
+void *clone_threaded(void *p) {
+    struct gct_p *param = (struct gct_p *)p;
+    log_msg("Cloning %s to %s\n", param->url, param->path);
+
+    struct git_repository *r;
+    clone_repo(param->url, param->path, &r);
+    git_repository_free(r);
+
+    free(param->path);
+    free(param);
+    return (void *)NULL;
 }
 
-/**
- * \brief Clone all repos stored in a configmgr
- */
 void clone_all(struct confmgr *c) {
-#ifdef HAVE_PTHREAD
+    struct thread_pool *pool = create_thread_pool(4);
+    char *method, *domain, *path;
+    method = domain = path = NULL;
 
-    pthread_t *threads = xcalloc(c->repo_count, sizeof(pthread_t));
-    struct gct_p **thread_params = xcalloc(c->repo_count, sizeof(pthread_t));
-    int th_id = 0;
-    int pipefd[2];
-    pipe(pipefd);
+    for (size_t i = 0; i < c->repo_count; i++) {
+        if (match_uri(c->repo_urls[i], &method, &domain, &path) != 0) {
+            log_msg("URL %s not valid, ignoring\n", c->repo_urls[i]);
+            continue;
+        }
+        int dir_path_len =
+            strlen(c->store) + 1 + strlen(domain) + strlen(path) + 1;
 
-#endif
+        char *p = xmalloc(dir_path_len * sizeof(char));
+        sprintf(p, "%s/%s%s", c->store, domain, path);
+
+        if (dir_exists(p)) {
+            log_msg("Repository %s already exists, not cloning.\n", p);
+            free(p);
+        } else {
+            struct gct_p *param = malloc(sizeof(struct gct_p));
+            param->url = c->repo_urls[i];
+            param->path = p;
+            launch_thread(pool, clone_threaded, param);
+        }
+        free(method);
+        free(domain);
+        free(path);
+    }
+    join_all(pool);
+    free_thread_pool(pool);
+}
+
+#else
+
+void clone_all(struct confmgr *c) {
     char **dirs_paths = xcalloc(c->repo_count, sizeof(char *));
     char *method, *domain, *path;
     method = domain = path = NULL;
@@ -124,7 +134,7 @@ void clone_all(struct confmgr *c) {
         int dir_path_len =
             strlen(c->store) + 1 + strlen(domain) + strlen(path) + 1;
 
-        dirs_paths[i] = xrealloc(dirs_paths[i], sizeof(char) * (dir_path_len));
+        dirs_paths[i] = xrealloc(dirs_paths[i], sizeof(char) * dir_path_len);
 
         sprintf(dirs_paths[i], "%s/%s%s", c->store, domain, path);
 
@@ -133,13 +143,6 @@ void clone_all(struct confmgr *c) {
                     dirs_paths[i]);
             free(dirs_paths[i]);
         } else {
-#ifdef HAVE_PTHREAD
-
-            clone_all_pthread(c, i, threads, thread_params, th_id++, dirs_paths,
-                              pipefd);
-
-#else
-
             git_repository *r = NULL;
             log_msg("Cloning %s to %s. This may take a while...\n",
                     c->repo_urls[i], dirs_paths[i]);
@@ -147,26 +150,12 @@ void clone_all(struct confmgr *c) {
             clone_repo(c->repo_urls[i], dirs_paths[i], &r);
             git_repository_free(r);
             free(dirs_paths[i]);
-
-#endif
         }
         free(domain);
         free(method);
         free(path);
     }
-
-#ifdef HAVE_PTHREAD
-
-    for (int i = 0; i < th_id; i++) {
-        int idx;
-        read(pipefd[0], &idx, sizeof(int));
-        pthread_join(threads[idx], NULL);
-        free(thread_params[idx]);
-    }
-    free(threads);
-    free(thread_params);
-    close(pipefd[0]);
-    close(pipefd[1]);
-#endif
     free(dirs_paths);
 }
+
+#endif

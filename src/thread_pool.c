@@ -41,16 +41,20 @@ struct th_data {
     size_t index;
 };
 
+/**
+ * \brief Create a thread pool with count slots
+ */
 struct thread_pool *create_thread_pool(size_t count) {
     struct thread_pool *pool = xmalloc(sizeof(struct thread_pool));
     pool->user_threads = xcalloc(count, sizeof(pthread_t));
     pool->th_nbr = count;
     pool->avlbl_count = pool->th_nbr;
     pthread_mutex_init(&pool->lock, NULL);
-    pipe(pool->fd);
+    pipe(pool->finished_fd);
+    pipe(pool->avlbl_fd);
     log_msg("Writing to the pipe\n");
-    for (size_t i = 0; i < count; i++)
-        write(pool->fd[1], &i, sizeof(size_t));
+    for (pool->avlbl_count = 0; pool->avlbl_count < count; pool->avlbl_count++)
+        write(pool->avlbl_fd[1], &pool->avlbl_count, sizeof(size_t));
     log_msg("Wrote to the pipe\n");
     return pool;
 }
@@ -60,7 +64,7 @@ void cleanup_routine(void *th_data) {
     log_msg("Cleaning up after thread %lu!\n", data->index);
     pthread_mutex_lock(&data->pool->lock);
     data->pool->avlbl_count++;
-    write(data->pool->fd[1], &(data->index), sizeof(size_t));
+    write(data->pool->finished_fd[1], &(data->index), sizeof(size_t));
     pthread_mutex_unlock(&data->pool->lock);
 }
 
@@ -76,14 +80,20 @@ void *start_user_routine(void *th_data) {
 
     pthread_cleanup_pop(1);
 
+    free(th_data);
+
     return ret;
 }
 
+/**
+ * \brief Starts routine(arg) in a thread, blocks if there are no slots 
+ * available
+ */
 void launch_thread(struct thread_pool *pool, void *(*routine)(void *),
                    void *arg) {
     size_t next_index;
     log_msg("Reading from the pipe\n");
-    read(pool->fd[0], &next_index, sizeof(size_t));
+    read(pool->avlbl_fd[0], &next_index, sizeof(size_t));
     log_msg("Available thread at index %lu\n", next_index);
     struct th_data *param = malloc(sizeof(struct th_data));
     param->user_routine = routine;
@@ -91,25 +101,44 @@ void launch_thread(struct thread_pool *pool, void *(*routine)(void *),
     param->pool = pool;
     param->index = next_index;
     param->tid = pool->user_threads[next_index];
-    pthread_mutex_lock(&pool->lock);
-    pool->avlbl_count--;
+
     log_msg("Creating a new thread with tid %lu\n",
             pool->user_threads[next_index]);
+    pthread_mutex_lock(&pool->lock);
+    pool->avlbl_count--;
     pthread_create(pool->user_threads + next_index, NULL, start_user_routine,
                    param);
     pthread_mutex_unlock(&pool->lock);
 }
 
+/**
+ * \brief Waits for all threads in the pool to join
+ */
 void join_all(struct thread_pool *pool) {
     log_msg("Joining all threads\n");
     while (pool->avlbl_count != pool->th_nbr) {
-        log_msg("%d / %d threads have stopped\n", pool->avlbl_count,
-                pool->th_nbr);
         size_t next_index;
-        read(pool->fd[0], &next_index, sizeof(size_t));
+        read(pool->finished_fd[0], &next_index, sizeof(size_t));
         pthread_join(pool->user_threads[next_index], NULL);
+        log_msg("%d / %d threads have joined\n", pool->avlbl_count,
+                pool->th_nbr);
+        write(pool->avlbl_fd[1], &next_index, sizeof(size_t));
     }
     log_msg("All threads have joined\n");
-    for (size_t i = 0; i < pool->th_nbr; i++)
-        write(pool->fd[1], &i, sizeof(size_t));
+}
+
+/**
+ * \brief Free the memory allocated by the pool
+ */
+void free_thread_pool(struct thread_pool *pool){
+    join_all(pool);
+
+    close(pool->avlbl_fd[0]);
+    close(pool->avlbl_fd[1]);
+    close(pool->finished_fd[0]);
+    close(pool->finished_fd[1]);
+
+    free(pool->user_threads);
+
+    free(pool);
 }

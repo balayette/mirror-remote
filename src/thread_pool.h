@@ -35,13 +35,11 @@ SOFTWARE.
 #include <pthread.h>
 #include <stdbool.h>
 
-// TODO : make it work with th_nbr > than the number of threads the user
-// wants to start.
-// Will have to use 2 FDs, I think
 struct thread_pool {
         size_t th_nbr;
         pthread_t *user_threads;
-        int fd[2];
+        int avlbl_fd[2];
+        int finished_fd[2];
         size_t avlbl_count;
         pthread_mutex_t lock;
 };
@@ -50,6 +48,9 @@ struct thread_pool *create_thread_pool(size_t count);
 
 void launch_thread(struct thread_pool *pool, void *(*routine)(void *),
                    void *arg);
+
 void join_all(struct thread_pool *pool);
+
+void free_thread_pool(struct thread_pool *pool);
 
 #endif
