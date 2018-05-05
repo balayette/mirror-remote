@@ -36,12 +36,14 @@ SOFTWARE.
 #include <stdbool.h>
 
 struct thread_pool {
-        size_t th_nbr;
-        pthread_t *user_threads;
-        int avlbl_fd[2];
-        int finished_fd[2];
-        size_t avlbl_count;
-        pthread_mutex_t lock;
+    size_t th_nbr;
+    pthread_t *user_threads;
+    int avlbl_fd[2];
+    int finished_fd[2];
+    size_t avlbl_count;
+    pthread_mutex_t lock;
+    size_t waiting_jobs;
+    struct th_data_q *job_queue;
 };
 
 struct thread_pool *create_thread_pool(size_t count);

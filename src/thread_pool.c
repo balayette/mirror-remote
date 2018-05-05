@@ -41,6 +41,34 @@ struct th_data {
     size_t index;
 };
 
+struct th_data_q {
+    struct th_data *data;
+    struct th_data_q *next;
+};
+
+struct th_data_q *create_queue(void){
+    struct th_data_q *q = xmalloc(sizeof(struct th_data_q));
+    q->data = NULL;
+    q->next = NULL;
+    return q;
+}
+
+void th_data_q_enq(struct th_data_q *q, struct th_data *data){
+    while(q->next == NULL){
+        q = q->next;
+    }
+    q->next = create_queue();
+    q->data = data;
+}
+
+struct th_data *th_data_q_deq(struct th_data_q **q){
+    struct th_data *data = (*q)->data;
+    struct th_data_q *e = *q;
+    *q = (*q)->next;
+    free(e);
+    return data;
+}
+
 /**
  * \brief Create a thread pool with count slots
  */
@@ -56,6 +84,8 @@ struct thread_pool *create_thread_pool(size_t count) {
     for (pool->avlbl_count = 0; pool->avlbl_count < count; pool->avlbl_count++)
         write(pool->avlbl_fd[1], &pool->avlbl_count, sizeof(size_t));
     log_msg("Wrote to the pipe\n");
+    pool->waiting_jobs = 0;
+    pool->job_queue = create_queue();
     return pool;
 }
 
@@ -83,6 +113,10 @@ void *start_user_routine(void *th_data) {
     free(th_data);
 
     return ret;
+}
+
+void launch_thread_2(struct thread_pool *pool, void *(*routine)(void *), 
+        void *arg){ 
 }
 
 /**
