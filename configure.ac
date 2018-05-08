@@ -36,6 +36,7 @@ AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
+AC_SYS_LARGEFILE
 AX_PTHREAD
 AC_TYPE_INT16_T
 AC_TYPE_INT8_T

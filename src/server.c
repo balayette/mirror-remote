@@ -40,7 +40,7 @@ int respond_conn(void *cls, struct MHD_Connection *connection, const char *url,
     (void)cls;
     (void)con_cls;
 
-    printf("Url : %s | Method : %s | Version : %s | Data : %s | Size : %lu\n",
+    printf("Url : %s | Method : %s | Version : %s | Data : %s | Size : %zu\n",
            url, method, version, upload_data, *upload_data_size);
 
     struct MHD_Response *resp = MHD_create_response_from_buffer(

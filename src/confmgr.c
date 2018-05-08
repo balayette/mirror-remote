@@ -46,9 +46,9 @@ SOFTWARE.
  * \brief Read a line from a file and write it to line.
  *
  * Resize line and writes the new size to len if the buffer isn't big enough.
- * Behaves a bit like GNU's _getline.
+ * Behaves a bit like GNU's getline.
  */
-int _getline(char **line, size_t *len, FILE *f) {
+int getline_(char **line, size_t *len, FILE *f) {
     char curr;
     size_t i = 0;
     for (;; i++) {
@@ -62,7 +62,7 @@ int _getline(char **line, size_t *len, FILE *f) {
                 if(i != 0){
                         break;
                 }
-                return _getline(line, len, f);
+                return getline_(line, len, f);
         }
         (*line)[i] = curr;
         if (i == *len - 2) {
@@ -89,7 +89,7 @@ struct confmgr *read_config(char *path) {
     size_t len = 100;
     int read;
 
-    while ((read = _getline(&line, &len, f)) != 0) {
+    while ((read = getline_(&line, &len, f)) != 0) {
         if (read < 3) {
             log_msg("Didn't expect %s\n", line);
             exit(CONFIG_FILE_MALFORMED);
@@ -147,7 +147,6 @@ struct confmgr *read_config(char *path) {
 
     free(line);
     fclose(f);
-
     return c;
 }
 
@@ -166,7 +165,7 @@ void free_confmgr(struct confmgr *c){
 /**
  * \brief Apply the config to the filesystem
  */
-void apply_conf(struct confmgr *c){
+void apply_conf(struct confmgr *c) {
         if(!dir_exists(c->store)) {
                 log_msg("The store %s doesn't exist\n", c->store);
                 int err;

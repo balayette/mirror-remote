@@ -33,3 +33,11 @@ if host/username doesn't exist, create it
 if host/username/repo doesn't exist, clone in host/username
 if host/username/repo is >= than the webhook, do nothing
 else pull
+
+mirror-remote should write a lock file to the directories it is working on.
+
+Git pull with fast forwarding : https://stackoverflow.com/questions/39651287/doing-a-git-pull-with-libgit2
+
+I might want to create a set / hashtable to hold urls to repos that need to be
+pulled, because another push might happen while a previous pull is still 
+queued.

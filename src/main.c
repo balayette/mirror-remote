@@ -31,7 +31,6 @@ SOFTWARE.
 #include "thread_pool.h"
 #include "utils.h"
 #include <git2.h>
-#include <microhttpd.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -47,7 +46,6 @@ int main(int argc, char *argv[]) {
     apply_conf(mgr);
 
     free_confmgr(mgr);
-
     git_libgit2_shutdown();
 
     return 0;

@@ -29,10 +29,14 @@ SOFTWARE.
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <microhttpd.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdarg.h>
+#define MHD_PLATFORM_H
+#include <microhttpd.h>
 
 int respond_conn(void *cls, struct MHD_Connection *connection, const char *url,
                  const char *method, const char *version,

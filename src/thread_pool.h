@@ -35,6 +35,9 @@ SOFTWARE.
 #include <pthread.h>
 #include <stdbool.h>
 
+/** 
+ * \brief Holds thread pool data
+ */
 struct thread_pool {
         size_t th_nbr;
         pthread_t *user_threads;
