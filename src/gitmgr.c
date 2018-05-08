@@ -44,18 +44,6 @@ SOFTWARE.
 
 #endif
 
-struct gct_p {
-    char *url;
-    char *path;
-};
-
-int check_err(int r) {
-    if (r < 0) {
-        log_msg("%s\n", giterr_last()->message);
-    }
-    return r;
-}
-
 /**
  * \brief Initialize a repo at path
  */
@@ -70,10 +58,21 @@ int clone_repo(char *url, char *path, git_repository **repo) {
     git_clone_options opts;
     git_clone_init_options(&opts, GIT_CLONE_OPTIONS_VERSION);
     opts.bare = 1;
-    return check_err(git_clone(repo, url, path, &opts));
+    int r = git_clone(repo, url, path, &opts);
+    if (r < 0) {
+        log_msg("Couldn't clone %s\n", url);
+        log_msg("Error : %s\n", giterr_last()->message);
+    }
+    return r;
 }
 
 #ifdef HAVE_PTHREAD
+
+struct gct_p {
+    char *url;
+    char *path;
+};
+
 void *clone_threaded(void *p) {
     struct gct_p *param = (struct gct_p *)p;
     log_msg("Cloning %s to %s\n", param->url, param->path);
@@ -105,6 +104,15 @@ void clone_all(struct confmgr *c) {
 
         if (dir_exists(p)) {
             log_msg("Repository %s already exists, not cloning.\n", p);
+            struct git_repository *r = NULL;
+            int er = git_repository_open_bare(&r, p);
+            if (er != 0) {
+                log_msg("   However, %s doesn't look like a valid (bare) git "
+                        "repository.\n",
+                        p);
+                log_msg("   libgit2 error : %s\n", giterr_last()->message);
+            }
+            git_repository_free(r);
             free(p);
         } else {
             struct gct_p *param = malloc(sizeof(struct gct_p));
