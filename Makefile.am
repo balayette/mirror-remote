@@ -1,3 +1,0 @@
-AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src man doc
-ACLOCAL_AMFLAGS = -I m4
