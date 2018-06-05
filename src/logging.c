@@ -30,6 +30,7 @@ SOFTWARE.
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #ifdef HAVE_PTHREAD
 
@@ -92,6 +93,8 @@ void log_msg_private(char *file, int line, char *format, ...) {
     pthread_mutex_lock(&lock);
 
 #endif
+
+    file = strrchr(file, '/') + 1;
 
     printf("%15s:%-4d| %04d/%02d/%02d %02d:%02d:%02d | "
            "%02dy-%03dd-%02dh-%02dm-%02ds |> ",
